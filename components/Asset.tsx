@@ -9,8 +9,19 @@ import {
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { Asset } from "../utils/types";
+import QRCode from "qrcode";
+import { useEffect } from "react";
 
 export default function FullAssetPage({ asset }: { asset: Asset }) {
+  useEffect(() => {
+    QRCode.toCanvas(
+      document.getElementById("qrcode") as HTMLCanvasElement,
+      asset.id,
+      {
+        width: 256,
+      }
+    );
+  }, [asset.id]);
   return (
     <div className="grid grid-cols-2 gap-4 px-12 py-8 dark:text-white">
       <Link href="/" passHref>
@@ -45,9 +56,9 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
           <QrcodeIcon className="w-5 h-5" />
         </button>
       </div>
-      <div className="grid md:grid-cols-4 sm:grid-cols-2 gap-4 col-span-full grid-cols-1 w-full">
+      <div className="grid md:grid-cols-4 sm:grid-cols-2 gap-4 col-span-1 grid-cols-1 w-full align-top">
         <ul className="grid grid-cols-4 gap-2 space-x-8 col-span-full justify-self-start">
-          <li className="flex space-x-2 items-center align-middle">
+          <li className="flex space-x-2 items-center align-middle h-min">
             <span className="flex items-center space-x-2 font-semibold align-middle">
               <ClockIcon className="w-6 h-6 dark:text-gray-200" />
             </span>
@@ -60,7 +71,7 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
               </span>
             </div>
           </li>
-          <li className="flex space-x-2 items-center align-middle">
+          <li className="flex space-x-2 items-center align-middle h-min">
             <span className="flex items-center space-x-2 font-semibold align-middle">
               <AnnotationIcon className="w-6 h-6 dark:text-gray-200" />
             </span>
@@ -71,7 +82,7 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
               </span>
             </div>
           </li>
-          <li className="flex space-x-2 items-center align-middle">
+          <li className="flex space-x-2 items-center align-middle h-min">
             <span className="flex items-center space-x-2 font-semibold align-middle">
               <CalculatorIcon className="w-6 h-6 dark:text-gray-200" />
             </span>
@@ -82,7 +93,7 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
               </span>
             </div>
           </li>
-          <li className="flex space-x-2 items-center align-middle">
+          <li className="flex space-x-2 items-center align-middle h-min">
             <span className="flex items-center space-x-2 font-semibold align-middle">
               <CollectionIcon className="w-6 h-6 dark:text-gray-200" />
             </span>
@@ -94,6 +105,9 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
             </div>
           </li>
         </ul>
+      </div>
+      <div className="flex col-span-1 justify-end">
+        <canvas id="qrcode" className="w-full h-full" />
       </div>
     </div>
   );
