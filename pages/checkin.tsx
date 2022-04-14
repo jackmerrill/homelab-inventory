@@ -28,6 +28,10 @@ export default function CheckinPage() {
           .eq("id", id)
           .single();
 
+        if (inputRef.current) {
+          inputRef.current.value = "";
+        }
+
         if (error) {
           return reject(error);
         }
