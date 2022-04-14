@@ -1,0 +1,38 @@
+{
+  "name": "homelab-inventory",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@headlessui/react": "^1.5.0",
+    "@heroicons/react": "^1.0.6",
+    "@supabase/supabase-js": "^1.33.3",
+    "@tailwindcss/forms": "^0.5.0",
+    "@types/printer": "^0.4.2",
+    "@types/qrcode": "^1.4.2",
+    "next": "12.1.5",
+    "printer": "^0.4.0",
+    "qrcode": "^1.5.0",
+    "react": "18.0.0",
+    "react-dom": "18.0.0",
+    "react-hot-toast": "^2.2.0",
+    "react-tooltip": "^4.2.21"
+  },
+  "devDependencies": {
+    "@types/node": "17.0.23",
+    "@types/react": "18.0.4",
+    "@types/react-dom": "18.0.0",
+    "autoprefixer": "^10.4.4",
+    "eslint": "8.13.0",
+    "eslint-config-next": "12.1.5",
+    "postcss": "^8.4.12",
+    "prettier": "2.6.2",
+    "tailwindcss": "^3.0.24",
+    "typescript": "4.6.3"
+  }
+}
