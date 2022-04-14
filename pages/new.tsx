@@ -141,7 +141,7 @@ export default function NewAssetPage() {
             </button>
           </div>
         </div>
-      </form>{" "}
+      </form>
     </div>
   );
 }

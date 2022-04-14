@@ -12,6 +12,7 @@ export default function AssetPage() {
   const { id } = router.query;
 
   useEffect(() => {
+    if (!id) return;
     supabase
       .from<Asset>("assets")
       .select("*")
