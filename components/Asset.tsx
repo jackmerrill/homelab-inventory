@@ -5,6 +5,7 @@ import {
   CalendarIcon,
   ClockIcon,
   CollectionIcon,
+  PlusIcon,
   QrcodeIcon,
   SaveIcon,
   TrashIcon,
@@ -34,6 +35,10 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
   const [randomKey, setRandomKey] = useState(Math.random());
 
   const [allChildAssets, setAllChildAssets] = useState<AssetHasAsset[]>([]);
+
+  const [attributes, setAttributes] = useState<{
+    [key: string]: string;
+  }>(asset.attributes || {});
 
   const [initialData, setInitialData] =
     useState<{ value: string; label: string }[]>();
@@ -109,19 +114,32 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
   return (
     <div className="grid grid-cols-2 gap-4 px-12 py-8 dark:text-white">
       <Link href="/" passHref>
-        <a className="flex items-center align-middle transition-colors duration-150 text-blue-400 hover:text-blue-500 col-span-full">
+        <a className="flex items-center text-blue-400 align-middle transition-colors duration-150 hover:text-blue-500 col-span-full">
           <ArrowSmLeftIcon className="w-5 h-5" />
           <span className="ml-2">Back to Inventory</span>
         </a>
       </Link>
-      <h1 className="font-black text-3xl">{asset.name}</h1>
-      <div className="flex w-full justify-end space-x-4">
+      <h1 className="text-3xl font-black">{asset.name}</h1>
+      <div className="flex justify-end w-full space-x-4">
         <button
           onClick={() => {
             toast.promise(
               new Promise<void>(async (resolve, reject) => {
+                supabase
+                  .from<Asset>("assets")
+                  .update({
+                    attributes,
+                  })
+                  .eq("id", asset.id)
+                  .then(({ error }) => {
+                    if (error) {
+                      reject(error);
+                    } else {
+                      resolve();
+                    }
+                  });
+
                 childAssets.map((child) => {
-                  console.log(child.id);
                   supabase
                     .from<AssetHasAsset>("asset_has_assets")
                     .insert({
@@ -190,7 +208,7 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
               }
             );
           }}
-          className="flex items-center align-middle bg-blue-500 transition-colors duration-150 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="flex items-center px-4 py-2 font-bold text-white align-middle transition-colors duration-150 bg-blue-500 rounded hover:bg-blue-700"
         >
           <SaveIcon className="w-5 h-5" />
           <span className="ml-2">Save</span>
@@ -214,64 +232,154 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
               }
             );
           }}
-          className="flex items-center align-middle bg-blue-500 transition-colors duration-150 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="flex items-center px-4 py-2 font-bold text-white align-middle transition-colors duration-150 bg-blue-500 rounded hover:bg-blue-700"
         >
           <QrcodeIcon className="w-5 h-5" />
           <span className="ml-2">Print</span>
         </button>
       </div>
-      <div className="grid md:grid-cols-4 sm:grid-cols-2 gap-4 col-span-1 grid-cols-1 w-full align-top">
+      <div className="grid w-full grid-cols-1 col-span-1 gap-4 align-top md:grid-cols-4 sm:grid-cols-2">
         <ul className="grid grid-cols-4 gap-2 space-x-8 col-span-full justify-self-start">
-          <li className="flex space-x-2 items-center align-middle h-min">
+          <li className="flex items-center space-x-2 align-middle h-min">
             <span className="flex items-center space-x-2 font-semibold align-middle">
               <ClockIcon className="w-6 h-6 dark:text-gray-200" />
             </span>
             <div className="grid grid-cols-1">
               <span>Created At</span>
-              <span className="font-light text-sm">
+              <span className="text-sm font-light">
                 {new Date(asset.created_at).toLocaleDateString("en-US", {
                   timeZone: "UTC",
                 })}
               </span>
             </div>
           </li>
-          <li className="flex space-x-2 items-center align-middle h-min">
+          <li className="flex items-center space-x-2 align-middle h-min">
             <span className="flex items-center space-x-2 font-semibold align-middle">
               <AnnotationIcon className="w-6 h-6 dark:text-gray-200" />
             </span>
             <div className="grid grid-cols-1">
               <span>Type</span>
-              <span className="font-light text-sm">
+              <span className="text-sm font-light">
                 {asset.type.toUpperCase()}
               </span>
             </div>
           </li>
-          <li className="flex space-x-2 items-center align-middle h-min">
+          <li className="flex items-center space-x-2 align-middle h-min">
             <span className="flex items-center space-x-2 font-semibold align-middle">
               <CalculatorIcon className="w-6 h-6 dark:text-gray-200" />
             </span>
             <div className="grid grid-cols-1">
               <span>Quantity</span>
-              <span className="font-light text-sm">
+              <span className="text-sm font-light">
                 {asset.quantity.toLocaleString()}
               </span>
             </div>
           </li>
-          <li className="flex space-x-2 items-center align-middle h-min">
+          <li className="flex items-center space-x-2 align-middle h-min">
             <span className="flex items-center space-x-2 font-semibold align-middle">
               <CollectionIcon className="w-6 h-6 dark:text-gray-200" />
             </span>
             <div className="grid grid-cols-1">
               <span>In Use</span>
-              <span className="font-light text-sm">
+              <span className="text-sm font-light">
                 {asset.in_use.toLocaleString()}
               </span>
             </div>
           </li>
         </ul>
 
-        <div className="col-span-full space-y-4">
-          <h1 className="font-bold text-2xl col-span-full">
+        <div className="space-y-4 col-span-full">
+          <h1 className="text-2xl font-bold col-span-full">Attributes</h1>
+
+          {Object.keys(attributes).map((key, i) => {
+            return (
+              <div className="flex space-x-8" key={i}>
+                <div className="sm:col-span-4">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    Key
+                  </label>
+                  <div className="flex mt-1 rounded-md shadow-sm">
+                    <input
+                      type="text"
+                      name="key"
+                      id="key"
+                      defaultValue={key}
+                      onChange={(e) => {
+                        // remove the old key and add the new key
+                        const newAttributes = {
+                          ...attributes,
+                        };
+                        delete newAttributes[key];
+                        newAttributes[e.target.value] = attributes[key];
+                        setAttributes(newAttributes);
+                      }}
+                      className="flex-1 block w-full min-w-0 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:text-black sm:text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div className="sm:col-span-4">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    Value
+                  </label>
+                  <div className="flex mt-1 rounded-md shadow-sm">
+                    <input
+                      type="text"
+                      name="value"
+                      id="value"
+                      defaultValue={attributes[key]}
+                      onChange={(e) => {
+                        setAttributes({
+                          ...attributes,
+                          [key]: e.target.value,
+                        });
+                      }}
+                      className="flex-1 block w-full min-w-0 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:text-black sm:text-sm"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setAttributes(
+                      Object.keys(attributes)
+                        .filter((k) => k !== key)
+                        .reduce((acc: any, k) => {
+                          acc[k] = attributes[k];
+                          return acc;
+                        }, {})
+                    );
+                  }}
+                  className="flex items-center px-4 py-2 font-bold text-white align-middle transition-colors duration-150 bg-blue-500 rounded hover:bg-blue-700"
+                >
+                  <TrashIcon className="w-5 h-5" />
+                </button>
+              </div>
+            );
+          })}
+
+          <button
+            onClick={() => {
+              setAttributes({
+                ...attributes,
+                "": "",
+              });
+            }}
+            className="flex items-center px-4 py-2 font-bold text-white align-middle transition-colors duration-150 bg-blue-500 rounded hover:bg-blue-700"
+          >
+            <PlusIcon className="w-5 h-5" />
+            <span className="ml-2">Add Attribute</span>
+          </button>
+        </div>
+
+        <div className="space-y-4 col-span-full">
+          <h1 className="text-2xl font-bold col-span-full">
             Assign child assets
           </h1>
 
@@ -289,10 +397,10 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
           />
         </div>
 
-        <div className="col-span-full space-y-4">
-          <h1 className="font-bold text-2xl col-span-full">Child assets</h1>
+        <div className="space-y-4 col-span-full">
+          <h1 className="text-2xl font-bold col-span-full">Child assets</h1>
 
-          <div className="bg-white dark:border dark:border-gray-700 dark:bg-transparent shadow overflow-hidden sm:rounded-md">
+          <div className="overflow-hidden bg-white shadow dark:border dark:border-gray-700 dark:bg-transparent sm:rounded-md">
             <ul
               role="list"
               className="divide-y divide-gray-200 dark:divide-gray-700"
@@ -313,15 +421,15 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
                             <p className="text-sm font-medium text-indigo-600 truncate">
                               {(child.child as Asset).name}
                             </p>
-                            <div className="ml-2 flex-shrink-0 flex">
-                              <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            <div className="flex flex-shrink-0 ml-2">
+                              <p className="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
                                 {(child.child as Asset).type}
                               </p>
                             </div>
                           </div>
                           <div className="mt-2 sm:flex sm:justify-between">
                             <div className="sm:flex"></div>
-                            <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                            <div className="flex items-center mt-2 text-sm text-gray-500 sm:mt-0">
                               <CalendarIcon
                                 className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                                 aria-hidden="true"
@@ -343,7 +451,7 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
                         </div>
                       </a>
                     </Link>
-                    <div className="col-span-1 flex items-center justify-end px-4">
+                    <div className="flex items-center justify-end col-span-1 px-4">
                       <button
                         onClick={() => {
                           toast.promise(
@@ -408,7 +516,7 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
                             }
                           );
                         }}
-                        className="flex justify-self-end items-center justify-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:shadow-outline"
+                        className="flex items-center justify-center px-4 py-2 text-sm font-medium leading-5 text-white bg-indigo-600 border border-transparent rounded-md justify-self-end hover:bg-indigo-500 focus:outline-none focus:shadow-outline"
                       >
                         <TrashIcon className="w-5 h-5" />
                         <span className="ml-2">Delete</span>
@@ -417,7 +525,7 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
                   </li>
                 ))
               ) : (
-                <div className="w-6 h-6 flex mx-auto my-4 justify-center items-center">
+                <div className="flex items-center justify-center w-6 h-6 mx-auto my-4">
                   <Spinner />
                 </div>
               )}
@@ -425,7 +533,7 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
           </div>
         </div>
       </div>
-      <div className="flex col-span-1 justify-end">
+      <div className="flex justify-end col-span-1">
         <canvas id="qrcode" className="w-full h-full" />
       </div>
     </div>
