@@ -40,6 +40,8 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
     [key: string]: string;
   }>(asset.attributes || {});
 
+  const [quantity, setQuantity] = useState(asset.quantity || 1);
+
   const [initialData, setInitialData] =
     useState<{ value: string; label: string }[]>();
 
@@ -112,7 +114,7 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
   };
 
   return (
-    <div className="grid grid-cols-2 gap-4 px-12 py-8 dark:text-white">
+    <div className="grid w-full h-full grid-cols-2 gap-4 px-12 py-8 dark:text-white">
       <Link href="/" passHref>
         <a className="flex items-center text-blue-400 align-middle transition-colors duration-150 hover:text-blue-500 col-span-full">
           <ArrowSmLeftIcon className="w-5 h-5" />
@@ -129,6 +131,7 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
                   .from<Asset>("assets")
                   .update({
                     attributes,
+                    quantity
                   })
                   .eq("id", asset.id)
                   .then(({ error }) => {
@@ -530,6 +533,44 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
                 </div>
               )}
             </ul>
+          </div>
+        </div>
+
+        <div className="space-y-4 col-span-full">
+          <h1 className="text-2xl font-bold col-span-full">
+            Change Quantity
+          </h1>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-1">
+              <label
+                  htmlFor="quantity"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Quantity
+                </label>
+                <div className="flex mt-1 rounded-md shadow-sm">
+                  <input
+                    type="number"
+                    name="quantity"
+                    id="quantity"
+                    min="0"
+                    defaultValue={asset.quantity}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value, 10);
+                      if (isNaN(value)) {
+                        setQuantity(0);
+                      } else {
+                        setQuantity(value);
+                      }
+                    }}
+                    className="flex-1 block w-full min-w-0 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:text-black sm:text-sm"
+                  />
+                </div>
+
+              </div>
+            </div>
           </div>
         </div>
       </div>

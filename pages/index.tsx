@@ -29,12 +29,12 @@ export default function HomePage() {
       });
   }, []);
   return (
-    <div className="grid grid-cols-2 gap-4 px-12 py-8 dark:text-white">
-      <h1 className="font-black text-3xl">Your Inventory</h1>
-      <div className="flex w-full justify-end space-x-4">
+    <div className="grid grid-cols-5 gap-4 px-12 py-8 dark:text-white">
+      <h1 className="text-3xl font-black md:col-span-2 col-span-full">Your Inventory</h1>
+      <div className="grid justify-end w-full grid-cols-2 gap-4 md:col-span-3 col-span-full md:grid-cols-4">
         <button>
           <Link href="/checkin">
-            <a className="flex items-center align-middle bg-blue-500 transition-colors duration-150 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            <a className="flex items-center w-full h-full px-4 py-2 font-bold text-white align-middle transition-colors duration-150 bg-blue-500 rounded hover:bg-blue-700">
               <InboxInIcon className="w-5 h-5" />
               <span className="ml-2">Check In</span>
             </a>
@@ -42,7 +42,7 @@ export default function HomePage() {
         </button>
         <button>
           <Link href="/checkout">
-            <a className="flex items-center align-middle bg-blue-500 transition-colors duration-150 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            <a className="flex items-center w-full h-full px-4 py-2 font-bold text-white align-middle transition-colors duration-150 bg-blue-500 rounded hover:bg-blue-700">
               <CheckIcon className="w-5 h-5" />
               <span className="ml-2">Check Out</span>
             </a>
@@ -50,7 +50,7 @@ export default function HomePage() {
         </button>
         <button>
           <Link href="/search">
-            <a className="flex items-center align-middle bg-blue-500 transition-colors duration-150 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            <a className="flex items-center w-full h-full px-4 py-2 font-bold text-white align-middle transition-colors duration-150 bg-blue-500 rounded hover:bg-blue-700">
               <SearchIcon className="w-5 h-5" />
               <span className="ml-2">Search</span>
             </a>
@@ -58,14 +58,14 @@ export default function HomePage() {
         </button>
         <button>
           <Link href="/new">
-            <a className="flex items-center align-middle bg-blue-500 transition-colors duration-150 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            <a className="flex items-center w-full h-full px-4 py-2 font-bold text-white align-middle transition-colors duration-150 bg-blue-500 rounded hover:bg-blue-700">
               <PlusIcon className="w-5 h-5" />
               <span className="ml-2">Add</span>
             </a>
           </Link>
         </button>
       </div>
-      <div className="grid md:grid-cols-4 sm:grid-cols-2 gap-4 col-span-full grid-cols-1 w-full">
+      <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-4 sm:grid-cols-2 col-span-full">
         {assets ? (
           assets.map((asset) => <AssetCard key={asset.id} asset={asset} />)
         ) : (
