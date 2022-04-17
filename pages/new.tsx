@@ -1,4 +1,4 @@
-import { ArrowSmLeftIcon } from "@heroicons/react/solid";
+import { ArrowSmLeftIcon, PlusIcon, TrashIcon } from "@heroicons/react/solid";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -44,27 +44,27 @@ export default function NewAssetPage() {
   return (
     <div className="grid grid-cols-2 gap-4 px-12 py-8 dark:text-white">
       <Link href="/" passHref>
-        <a className="flex items-center align-middle transition-colors duration-150 text-blue-400 hover:text-blue-500 col-span-full">
+        <a className="flex items-center text-blue-400 align-middle transition-colors duration-150 hover:text-blue-500 col-span-full">
           <ArrowSmLeftIcon className="w-5 h-5" />
           <span className="ml-2">Back to Inventory</span>
         </a>
       </Link>
-      <h1 className="font-black text-3xl">New Asset</h1>
+      <h1 className="text-3xl font-black">New Asset</h1>
       <form
         className="space-y-8 divide-y divide-gray-200 dark:divide-gray-700 col-span-full"
         onSubmit={handleSubmit}
       >
         <div className="space-y-8 divide-y divide-gray-200">
           <div>
-            <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+            <div className="grid grid-cols-1 mt-6 gap-y-6 gap-x-4 sm:grid-cols-6">
               <div className="sm:col-span-4">
                 <label
                   htmlFor="name"
-                  className="block text-sm font-medium dark:text-gray-300 text-gray-700"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
                   Name
                 </label>
-                <div className="mt-1 flex rounded-md shadow-sm">
+                <div className="flex mt-1 rounded-md shadow-sm">
                   <input
                     type="text"
                     name="name"
@@ -72,7 +72,7 @@ export default function NewAssetPage() {
                     onChange={(e) =>
                       setAsset({ ...asset, name: e.target.value })
                     }
-                    className="flex-1 focus:ring-indigo-500 focus:border-indigo-500 dark:text-black block w-full min-w-0 rounded-md sm:text-sm border-gray-300"
+                    className="flex-1 block w-full min-w-0 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:text-black sm:text-sm"
                   />
                 </div>
               </div>
@@ -80,11 +80,11 @@ export default function NewAssetPage() {
               <div className="sm:col-span-4">
                 <label
                   htmlFor="type"
-                  className="block text-sm font-medium dark:text-gray-300 text-gray-700"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
                   Type
                 </label>
-                <div className="mt-1 flex rounded-md shadow-sm">
+                <div className="flex mt-1 rounded-md shadow-sm">
                   <input
                     type="text"
                     name="type"
@@ -92,7 +92,7 @@ export default function NewAssetPage() {
                     onChange={(e) =>
                       setAsset({ ...asset, type: e.target.value })
                     }
-                    className="flex-1 focus:ring-indigo-500 focus:border-indigo-500 dark:text-black block w-full min-w-0 rounded-md sm:text-sm border-gray-300"
+                    className="flex-1 block w-full min-w-0 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:text-black sm:text-sm"
                   />
                 </div>
               </div>
@@ -100,11 +100,11 @@ export default function NewAssetPage() {
               <div className="sm:col-span-4">
                 <label
                   htmlFor="quantity"
-                  className="block text-sm font-medium dark:text-gray-300 text-gray-700"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
                   Quantity
                 </label>
-                <div className="mt-1 flex rounded-md shadow-sm">
+                <div className="flex mt-1 rounded-md shadow-sm">
                   <input
                     type="number"
                     name="quantity"
@@ -124,9 +124,116 @@ export default function NewAssetPage() {
                         }));
                       }
                     }}
-                    className="flex-1 focus:ring-indigo-500 focus:border-indigo-500 dark:text-black block w-full min-w-0 rounded-md sm:text-sm border-gray-300"
+                    className="flex-1 block w-full min-w-0 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:text-black sm:text-sm"
                   />
                 </div>
+              </div>
+
+              <div className="sm:col-span-4">
+                <h1 className="text-2xl font-bold col-span-full">Attributes</h1>
+
+                {Object.keys(asset.attributes || {}).map((key, i) => {
+                  return (
+                    <div className="flex space-x-8" key={i}>
+                      <div className="sm:col-span-4">
+                        <label
+                          htmlFor="name"
+                          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >
+                          Key
+                        </label>
+                        <div className="flex mt-1 rounded-md shadow-sm">
+                          <input
+                            type="text"
+                            name="key"
+                            id="key"
+                            defaultValue={key}
+                            onChange={(e) => {
+                              // remove the old key and add the new key
+                              const newAttributes = {
+                                ...asset.attributes,
+                              };
+                              delete newAttributes[key];
+                              newAttributes[e.target.value] = asset.attributes
+                                ? asset.attributes[key]
+                                : "";
+                              setAsset((asset) => ({
+                                ...asset,
+                                attributes: newAttributes,
+                              }));
+                            }}
+                            className="flex-1 block w-full min-w-0 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:text-black sm:text-sm"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="sm:col-span-4">
+                        <label
+                          htmlFor="name"
+                          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >
+                          Value
+                        </label>
+                        <div className="flex mt-1 rounded-md shadow-sm">
+                          <input
+                            type="text"
+                            name="value"
+                            id="value"
+                            defaultValue={
+                              asset.attributes ? asset.attributes[key] : ""
+                            }
+                            onChange={(e) => {
+                              setAsset((asset) => ({
+                                ...asset,
+                                attributes: {
+                                  ...asset.attributes,
+                                  [key]: e.target.value,
+                                },
+                              }));
+                            }}
+                            className="flex-1 block w-full min-w-0 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:text-black sm:text-sm"
+                          />
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setAsset((asset) => ({
+                            ...asset,
+                            attributes: Object.keys(asset.attributes ?? {})
+                              .filter((k) => k !== key)
+                              .reduce((acc: any, k) => {
+                                acc[k] = asset.attributes
+                                  ? asset.attributes[k]
+                                  : "";
+                                return acc;
+                              }, {}),
+                          }));
+                        }}
+                        className="flex items-center px-4 py-2 font-bold text-white align-middle transition-colors duration-150 bg-blue-500 rounded hover:bg-blue-700"
+                      >
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+                  );
+                })}
+
+                <button
+                  onClick={() => {
+                    setAsset((asset) => ({
+                      ...asset,
+                      attributes: {
+                        ...asset.attributes,
+                        "": "",
+                      },
+                    }));
+                  }}
+                  type="button"
+                  className="flex items-center px-4 py-2 font-bold text-white align-middle transition-colors duration-150 bg-blue-500 rounded hover:bg-blue-700"
+                >
+                  <PlusIcon className="w-5 h-5" />
+                  <span className="ml-2">Add Attribute</span>
+                </button>
               </div>
             </div>
           </div>
@@ -135,7 +242,7 @@ export default function NewAssetPage() {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="inline-flex justify-center px-4 py-2 ml-3 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Create
             </button>
