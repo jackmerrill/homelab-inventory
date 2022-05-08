@@ -3,8 +3,10 @@ import {
   ArrowSmLeftIcon,
   CalculatorIcon,
   CalendarIcon,
+  CheckIcon,
   ClockIcon,
   CollectionIcon,
+  InboxInIcon,
   PlusIcon,
   QrcodeIcon,
   SaveIcon,
@@ -113,6 +115,98 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
     });
   };
 
+  const checkin = () => {
+    toast.promise(
+      new Promise<void>(async (resolve, reject) => {
+        const { data, error } = await supabase
+          .from<Asset>("assets")
+          .select("in_use, quantity")
+          .eq("id", asset.id)
+          .single();
+
+        if (error) {
+          return reject(error);
+        }
+
+        if (!data) {
+          return reject(new Error("Asset not found."));
+        }
+
+        if (data.in_use === 0) {
+          return reject(new Error("All assets are already checked in."));
+        }
+
+        supabase
+          .from<Asset>("assets")
+          .update({
+            in_use: data.in_use - 1,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", asset.id)
+          .single()
+          .then((r) => {
+            const { error, data } = r;
+            if (error) {
+              return reject(error);
+            } else {
+              return resolve();
+            }
+          });
+      }),
+      {
+        loading: "Checking in asset...",
+        success: "Asset checked in!",
+        error: (e) => `Error checking in asset: ${e.message}`,
+      }
+    );
+  };
+
+  const checkout = () => {
+    toast.promise(
+      new Promise<void>(async (resolve, reject) => {
+        const { data, error } = await supabase
+          .from<Asset>("assets")
+          .select("in_use, quantity")
+          .eq("id", asset.id)
+          .single();
+
+        if (error) {
+          return reject(error);
+        }
+
+        if (!data) {
+          return reject(new Error("Asset not found."));
+        }
+
+        if (data.in_use === data.quantity) {
+          return reject(new Error("All assets are already checked out."));
+        }
+
+        supabase
+          .from<Asset>("assets")
+          .update({
+            in_use: data.in_use + 1,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", asset.id)
+          .single()
+          .then((r) => {
+            const { error, data } = r;
+            if (error) {
+              return reject(error);
+            } else {
+              return resolve();
+            }
+          });
+      }),
+      {
+        loading: "Checking out asset...",
+        success: "Asset checked out!",
+        error: (e) => `Error checking out asset: ${e.message}`,
+      }
+    );
+  };
+
   return (
     <div className="grid w-full h-full grid-cols-2 gap-4 px-12 py-8 dark:text-white">
       <Link href="/" passHref>
@@ -123,6 +217,18 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
       </Link>
       <h1 className="text-3xl font-black">{asset.name}</h1>
       <div className="flex justify-end w-full space-x-4">
+        <button onClick={() => checkin()}>
+          <a className="flex items-center w-full h-full px-4 py-2 font-bold text-white align-middle transition-colors duration-150 bg-blue-500 rounded hover:bg-blue-700">
+            <InboxInIcon className="w-5 h-5" />
+            <span className="ml-2">Check In</span>
+          </a>
+        </button>
+        <button onClick={() => checkout()}>
+          <a className="flex items-center w-full h-full px-4 py-2 font-bold text-white align-middle transition-colors duration-150 bg-blue-500 rounded hover:bg-blue-700">
+            <CheckIcon className="w-5 h-5" />
+            <span className="ml-2">Check Out</span>
+          </a>
+        </button>
         <button
           onClick={() => {
             toast.promise(
@@ -131,7 +237,7 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
                   .from<Asset>("assets")
                   .update({
                     attributes,
-                    quantity
+                    quantity,
                   })
                   .eq("id", asset.id)
                   .then(({ error }) => {
@@ -159,35 +265,37 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
 
                         setChildAssets([]);
 
-                        supabase
-                          .from<Asset>(`assets`)
-                          .select("in_use")
-                          .eq("id", child.id)
-                          .single()
-                          .then(({ data: asset, error }) => {
-                            if (error) {
-                              console.error(error);
-                            } else {
-                              supabase
-                                .from<Asset>(`assets`)
-                                .update({
-                                  in_use: asset.in_use + 1,
-                                })
-                                .eq("id", child.id)
-                                .then(({ error }) => {
-                                  if (error) {
-                                    console.error(error);
+                        if (asset.type.toUpperCase() === "GROUP") {
+                          supabase
+                            .from<Asset>(`assets`)
+                            .select("in_use")
+                            .eq("id", child.id)
+                            .single()
+                            .then(({ data: asset, error }) => {
+                              if (error) {
+                                console.error(error);
+                              } else {
+                                supabase
+                                  .from<Asset>(`assets`)
+                                  .update({
+                                    in_use: asset.in_use + 1,
+                                  })
+                                  .eq("id", child.id)
+                                  .then(({ error }) => {
+                                    if (error) {
+                                      console.error(error);
 
-                                    toast.error(
-                                      "There was an error updating the child asset: " +
-                                        child.name
-                                    );
+                                      toast.error(
+                                        "There was an error updating the child asset: " +
+                                          child.name
+                                      );
 
-                                    reject(error);
-                                  }
-                                });
-                            }
-                          });
+                                      reject(error);
+                                    }
+                                  });
+                              }
+                            });
+                        }
 
                         supabase
                           .from<AssetHasAsset>("asset_has_assets")
@@ -537,14 +645,12 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
         </div>
 
         <div className="space-y-4 col-span-full">
-          <h1 className="text-2xl font-bold col-span-full">
-            Change Quantity
-          </h1>
+          <h1 className="text-2xl font-bold col-span-full">Change Quantity</h1>
 
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-1">
-              <label
+                <label
                   htmlFor="quantity"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
@@ -568,7 +674,6 @@ export default function FullAssetPage({ asset }: { asset: Asset }) {
                     className="flex-1 block w-full min-w-0 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:text-black sm:text-sm"
                   />
                 </div>
-
               </div>
             </div>
           </div>
