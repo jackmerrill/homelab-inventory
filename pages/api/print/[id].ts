@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { getPrinters, printDirect } from "printer";
 import QRCode from "qrcode";
 import { supabase } from "../../../utils/supabase";
 import { Asset } from "../../../utils/types";
@@ -38,6 +37,6 @@ export default async function handler(
   }
 
   const qrCode = await QRCode.toFile("temp.png", id.toString(), { type: "png" });
-  const fuck = execSync("/usr/bin/lp -d SII_SLP100 -o media=custom_83.31x24.13mm_83.31x24.13mm -o sides=one-sided temp.png");
+  const fuck = execSync("/usr/bin/lp -d <get from env vars> temp.png");
   res.status(200).json({ success: true });
 }
