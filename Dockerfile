@@ -6,8 +6,7 @@ WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 
-ENV NEXT_PUBLIC_SUPABASE_URL ""
-ENV NEXT_PUBLIC_SUPABASE_SECRET_KEY ""
+
 
 # If using npm with a `package-lock.json` comment out above and use below instead
 # COPY package.json package-lock.json ./ 
@@ -23,7 +22,8 @@ COPY . .
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED 1
-
+ENV NEXT_PUBLIC_SUPABASE_URL "asdf"
+ENV NEXT_PUBLIC_SUPABASE_SECRET_KEY "asdf"
 RUN yarn build
 
 # If using npm comment out above and use below instead
@@ -34,15 +34,17 @@ FROM node:16-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
+
 # Uncomment the following line in case you want to disable telemetry during runtime.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+RUN ls /app
+
 # You only need to copy next.config.js if you are NOT using the default configuration
 # COPY --from=builder /app/next.config.js ./
-COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
 
 # Automatically leverage output traces to reduce image size 
